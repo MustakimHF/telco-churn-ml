@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+outputs/models/
+outputs/plots/
+outputs/bi_exports/*.parquet
+.DS_Store
+.mcp/
+testproject_mcp/
+*.mcp.json
+*.mcp.yam

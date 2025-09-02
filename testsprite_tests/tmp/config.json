@@ -1,0 +1,16 @@
+{
+  "status": "commited",
+  "type": "backend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:8000",
+  "backendAuthType": "public",
+  "executionArgs": {
+    "projectName": "telco-churn-ml",
+    "projectPath": "C:\\Users\\Mustakim\\telco-churn-ml",
+    "testIds": [],
+    "additionalInstruction": "Focus on debugging the train_model.py script, particularly checking for data dependencies, model training pipeline issues, and error handling. Test the complete ML workflow from data loading to model saving.",
+    "envs": {
+      "API_KEY": "sk-user-iS4svHI_1glq3JjXZKhe9JS6Fq3BMGX4GOwHoi-EfWCrauGDpRBG3Dq9ZX9Cs2JHYGiCAG5yliYqF5EOo9SsO3kRc-dTjGeGHN3zP0IkWUaThf_Qj_3_XFG1bkXZGu2nCgk"
+    }
+  }
+}
