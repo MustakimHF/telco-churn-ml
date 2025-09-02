@@ -1,64 +1,151 @@
-# Churn Prediction Model
+# 📉 Project 5 – Customer Churn Prediction (Telco)
 
-This project trains machine learning models to predict customer churn using a telecom dataset. 
-I implemented the data preprocessing, model training pipeline, and evaluation. Along the way, I debugged 
-several issues related to data types, missing values, and model leakage. I also used an AI-assisted tool 
-(TestSprite) to help identify potential problems, but I validated and refined each fix myself based on my 
-understanding of machine learning best practices.
+This project predicts **customer churn** using the [Telco Customer Churn dataset](https://www.kaggle.com/blastchar/telco-customer-churn).  
+It demonstrates **ETL, feature engineering, machine learning (Logistic Regression + Random Forest), model evaluation, and business framing**.  
 
 ---
 
-## 🔧 Debugging & Fixes
+## 🚀 What This Project Does
+
+- 🧹 **Cleans and prepares** customer data for analysis  
+- 📊 **Explores churn patterns** (customer tenure, contract type, charges)  
+- 🤖 **Trains models** to predict churn probability  
+- 🛡️ **Handles leakage, missing values, API changes** (see notes below)  
+- 📈 **Exports scored dataset** (`churn_scored.csv`) for BI dashboards (Power BI / Tableau)  
+- ✅ **Incorporates AI-assisted testing** (TestSprite) for debugging & validation  
+
+---
+
+## 🧰 Tech Stack
+
+- **Python**: pandas, numpy, scikit-learn, joblib  
+- **ML Models**: Logistic Regression, Random Forest  
+- **Evaluation**: ROC-AUC, PR-AUC, Classification Report  
+- **Visualisation / BI**: Power BI, Tableau  
+- **Testing**: TestSprite (AI-assisted debugging, fixes validated manually)  
+
+---
+
+## 📁 Repository Structure
+
+```
+telco-churn-ml/
+├── README.md                      # Project overview (this file)
+├── requirements.txt               # Python dependencies
+├── data/
+│   └── raw/WA_Fn-UseC_-Telco-Customer-Churn.csv
+├── outputs/
+│   ├── models/                    # Saved ML models (.joblib)
+│   ├── plots/                     # Optional plots
+│   └── bi_exports/
+│       ├── telco_clean.csv        # Cleaned dataset
+│       └── churn_scored.csv       # Model-scored dataset for BI
+└── scripts/
+    ├── ingest_clean.py            # Cleans raw Telco CSV → telco_clean.csv
+    └── train_model.py             # Trains, evaluates, exports best model
+```
+
+---
+
+## ▶️ How to Run
+
+### 1. Create a virtual environment
+
+**Windows PowerShell**
+```bash
+python -m venv venv
+venv\Scripts\Activate.ps1
+```
+
+**macOS/Linux**
+```bash
+python -m venv venv
+source venv/bin/activate
+```
+
+### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Run the ingest/clean script
+
+```bash
+python scripts/ingest_clean.py
+```
+
+This produces: `outputs/bi_exports/telco_clean.csv`
+
+### 4. Train and evaluate models
+
+```bash
+python scripts/train_model.py
+```
+
+This will:  
+- Train Logistic Regression + Random Forest  
+- Print ROC-AUC / PR-AUC / classification report  
+- Save the **best model** → `outputs/models/best_model.joblib`  
+- Export scored dataset → `outputs/bi_exports/churn_scored.csv`  
+
+### 5. Use BI dashboards
+
+- Load `churn_scored.csv` into Power BI or Tableau  
+- Build KPIs (e.g., churn % by contract type, high-risk segments)  
+
+---
+
+## 🧪 TestSprite-Assisted Debugging
+
+This project used **TestSprite (AI-assisted testing)** to strengthen reliability.  
+Key contributions from TestSprite (validated manually by me):  
 
 ### 1. Data Type Mismatch
-- **Issue**: The `Churn` column contained string values ("Yes"/"No") instead of integers (0/1).
-- **Fix**: Converted the column into binary integers: `1` for "Yes", `0` for "No".
-- **Knowledge**: Models require numeric targets. String targets cause type conversion errors. I knew the fix 
-  had to involve mapping strings to numeric values.
+- **Issue**: `Churn` column had string values ("Yes"/"No").  
+- **Fix**: Converted to binary integers (`1` = churned, `0` = not).  
+- **Knowledge**: Models require numeric targets; mapping strings was the correct fix.
 
 ### 2. Deprecated Parameter in Scikit-learn
-- **Issue**: `OneHotEncoder` no longer supports the `sparse=True` parameter in newer versions of scikit-learn.
-- **Fix**: Updated to `sparse_output=True`.
-- **Knowledge**: I keep track of scikit-learn’s API changes. The error message confirmed the issue, and I 
-  verified the correct parameter in the documentation.
+- **Issue**: `OneHotEncoder` no longer supports `sparse=True`.  
+- **Fix**: Updated to `sparse_output=True`.  
+- **Knowledge**: I track scikit-learn API changes; confirmed in docs.
 
 ### 3. Missing Value Handling
-- **Issue**: LogisticRegression failed due to `NaN` values in the dataset.
-- **Fix**: Added imputers: median imputation for numeric features, constant “missing” category for categorical features.
-- **Knowledge**: I know most sklearn estimators don’t accept NaNs. Imputation is a standard preprocessing step 
-  to make data usable without dropping rows.
+- **Issue**: LogisticRegression failed due to NaNs.  
+- **Fix**: Added imputers (median for numeric, "missing" for categoricals).  
+- **Knowledge**: Most sklearn models don’t handle NaNs → imputation is standard.
 
 ### 4. Data Leakage
-- **Issue**: The dataset included a derived column (`Churn_bin`) that duplicated the target variable, 
-  leading to artificially perfect model scores (ROC-AUC = 1.0).
-- **Fix**: Excluded any features containing “churn” in their name.
-- **Knowledge**: Data leakage produces suspiciously high scores. I recognized that including target-derived 
-  features invalidates the model evaluation.
+- **Issue**: Column (`Churn_bin`) duplicated the target → artificial ROC-AUC = 1.0.  
+- **Fix**: Excluded any columns containing "churn".  
+- **Knowledge**: Leakage inflates scores; removing target-derived features restored realism.
+
+👉 While TestSprite detected these, I validated and refined the fixes myself.
 
 ---
 
-## 📊 Final Results
-- Logistic Regression: **ROC-AUC = 0.842**, **PR-AUC = 0.636**
-- Random Forest: **ROC-AUC = 0.819**, **PR-AUC = 0.610**
-- These scores are realistic and show meaningful predictive performance without leakage.
+## 📊 Example Results
+
+- Logistic Regression: ROC-AUC ~ **0.84**, PR-AUC ~ **0.64**  
+- Random Forest: ROC-AUC ~ **0.82**, PR-AUC ~ **0.61**  
+- Target distribution: ~26% churn, ~74% non-churn  
+- Scored dataset → includes `pred_proba` (likelihood of churn) & `pred_label` (0/1)
 
 ---
 
-## 🧠 Key Learnings
-- Always validate data types before training.
-- Keep dependencies updated to avoid deprecated parameters.
-- Use systematic missing value handling to improve robustness.
-- Actively watch for data leakage when feature engineering.
+## 🎯 Why This Project Matters
+
+This project demonstrates:  
+- **Business framing**: churn → lost revenue → retention campaigns  
+- **ETL + ML pipeline**: clean, train, export for BI  
+- **Leakage prevention & testing**: avoids false success  
+- **Realistic performance**: balanced precision/recall trade-offs  
+- **Communication**: can explain model outputs to non-technical stakeholders  
+
+📌 *This mirrors workflows in telecom, SaaS, and subscription businesses.*  
 
 ---
 
-## 🚀 Next Steps
-- Add cross-validation for more robust evaluation.
-- Implement feature importance analysis and interpretability tools.
-- Expand automated testing for pipeline reliability.
-
----
-
-This project demonstrates both my ability to **build and debug ML pipelines** and my ability to **use AI tools 
-effectively without relying on them blindly**. I combined AI suggestions with my own knowledge of machine 
-learning principles to ensure the code is correct and production-ready.
+## 📄 Licence  
+MIT Licence – free to use and adapt.  
