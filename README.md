@@ -1,149 +1,64 @@
-# 📉 Customer Churn Prediction (Telco Dataset)
+# Churn Prediction Model
 
-A machine learning project using the **Telco Customer Churn** dataset to predict which customers are likely to leave.  
-This repo demonstrates **end-to-end churn modelling** with business framing:  
-ETL → Feature Engineering → Model Training → Scoring → BI integration (Power BI / Tableau).
-
----
-
-## 🚀 What This Project Does
-
-- 📥 **Loads & cleans** the Telco dataset (demographics, services, billing, churn flag).  
-- 🧹 **Prepares features** (numeric scaling, categorical encoding, leakage control).  
-- 🤖 **Trains models**: Logistic Regression & Random Forest.  
-- 📊 **Evaluates** with ROC-AUC, PR-AUC, classification report.  
-- 🏆 **Saves the best model** (by ROC-AUC).  
-- 🔮 **Scores all customers** with churn probabilities → exports to CSV for BI dashboards.  
-- 📈 **Supports business actions** like targeting high-risk customers with retention campaigns.  
+This project trains machine learning models to predict customer churn using a telecom dataset. 
+I implemented the data preprocessing, model training pipeline, and evaluation. Along the way, I debugged 
+several issues related to data types, missing values, and model leakage. I also used an AI-assisted tool 
+(TestSprite) to help identify potential problems, but I validated and refined each fix myself based on my 
+understanding of machine learning best practices.
 
 ---
 
-## 🧰 Tech Stack
+## 🔧 Debugging & Fixes
 
-- **Python**: `pandas`, `numpy`, `scikit-learn`, `joblib`  
-- **Visualisation**: Power BI / Tableau / Excel (via CSV exports)  
-- **ETL**: Clean + preprocess pipeline  
-- **ML**: Logistic Regression, Random Forest  
+### 1. Data Type Mismatch
+- **Issue**: The `Churn` column contained string values ("Yes"/"No") instead of integers (0/1).
+- **Fix**: Converted the column into binary integers: `1` for "Yes", `0` for "No".
+- **Knowledge**: Models require numeric targets. String targets cause type conversion errors. I knew the fix 
+  had to involve mapping strings to numeric values.
 
----
+### 2. Deprecated Parameter in Scikit-learn
+- **Issue**: `OneHotEncoder` no longer supports the `sparse=True` parameter in newer versions of scikit-learn.
+- **Fix**: Updated to `sparse_output=True`.
+- **Knowledge**: I keep track of scikit-learn’s API changes. The error message confirmed the issue, and I 
+  verified the correct parameter in the documentation.
 
-## 📁 Repository Structure
+### 3. Missing Value Handling
+- **Issue**: LogisticRegression failed due to `NaN` values in the dataset.
+- **Fix**: Added imputers: median imputation for numeric features, constant “missing” category for categorical features.
+- **Knowledge**: I know most sklearn estimators don’t accept NaNs. Imputation is a standard preprocessing step 
+  to make data usable without dropping rows.
 
-```
-telco-churn-ml/
-├── README.md
-├── requirements.txt
-├── data/
-│   └── raw/                           # Original Telco dataset (CSV)
-├── outputs/
-│   ├── models/
-│   │   └── best_model.joblib          # Best saved model (logit or RF)
-│   └── bi_exports/
-│       ├── telco_clean.csv            # Cleaned dataset
-│       └── churn_scored.csv           # Full dataset with churn predictions
-└── scripts/
-    ├── ingest_clean.py                # Clean and preprocess Telco dataset
-    └── train_model.py                 # Train, evaluate, save model + score full dataset
-```
-
----
-
-## ▶️ How to Run
-
-### 1. Create a virtual environment
-
-**Windows PowerShell**
-```bash
-python -m venv venv
-venv\Scripts\Activate.ps1
-```
-
-**macOS/Linux**
-```bash
-python -m venv venv
-source venv/bin/activate
-```
+### 4. Data Leakage
+- **Issue**: The dataset included a derived column (`Churn_bin`) that duplicated the target variable, 
+  leading to artificially perfect model scores (ROC-AUC = 1.0).
+- **Fix**: Excluded any features containing “churn” in their name.
+- **Knowledge**: Data leakage produces suspiciously high scores. I recognized that including target-derived 
+  features invalidates the model evaluation.
 
 ---
 
-### 2. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-### 3. Ingest & Clean Data
-
-Prepare the dataset for ML:  
-```bash
-python scripts/ingest_clean.py
-```
-
-Outputs:  
-- `outputs/bi_exports/telco_clean.csv`
+## 📊 Final Results
+- Logistic Regression: **ROC-AUC = 0.842**, **PR-AUC = 0.636**
+- Random Forest: **ROC-AUC = 0.819**, **PR-AUC = 0.610**
+- These scores are realistic and show meaningful predictive performance without leakage.
 
 ---
 
-### 4. Train & Score Models
-
-Run training + scoring:  
-```bash
-python scripts/train_model.py
-```
-
-Outputs:  
-- `outputs/models/best_model.joblib`  
-- `outputs/bi_exports/churn_scored.csv`  
+## 🧠 Key Learnings
+- Always validate data types before training.
+- Keep dependencies updated to avoid deprecated parameters.
+- Use systematic missing value handling to improve robustness.
+- Actively watch for data leakage when feature engineering.
 
 ---
 
-### 5. Sanity Checks
-
-```bash
-# Does model file exist?
-dir outputs/models/best_model.joblib
-
-# Peek at churn_scored.csv
-python - <<'PY'
-import pandas as pd
-d = pd.read_csv('outputs/bi_exports/churn_scored.csv')
-print(d.head())
-print('Rows:', len(d), '| Pred churners:', d['pred_label'].sum())
-print('Proba range:', float(d['pred_proba'].min()), '→', float(d['pred_proba'].max()))
-PY
-```
+## 🚀 Next Steps
+- Add cross-validation for more robust evaluation.
+- Implement feature importance analysis and interpretability tools.
+- Expand automated testing for pipeline reliability.
 
 ---
 
-## 📊 Example BI Dashboard
-
-Use `outputs/bi_exports/churn_scored.csv` in **Power BI / Tableau / Excel**:  
-- KPI Cards: Predicted churners, churn rate, retention rate.  
-- Bar chart: Churn rate by Contract type, Internet service, Payment method.  
-- Matrix: Churn by Gender × Senior Citizen × Tenure buckets.  
-- Slicers: contract type, payment method, region.  
-
----
-
-## 🎯 Why This Project Matters
-
-- **Business framing**: ties churn prediction to retention campaigns and revenue impact.  
-- **ETL → ML → BI**: full data pipeline that mirrors real data science workflows.  
-- **Explains trade-offs**: precision vs recall, targeting the right customers.  
-- **Recruiter appeal**: interpretable logistic regression + robust random forest baseline.  
-
----
-
-## 🔒 Notes
-
-- The dataset comes from the [Telco Customer Churn dataset on Kaggle](https://www.kaggle.com/blastchar/telco-customer-churn).  
-- `.env` is not needed for this project.  
-- `outputs/` can be safely `.gitignore`d except for sample exports.  
-
----
-
-## 📄 Licence
-
-MIT Licence – free to use and adapt.  
+This project demonstrates both my ability to **build and debug ML pipelines** and my ability to **use AI tools 
+effectively without relying on them blindly**. I combined AI suggestions with my own knowledge of machine 
+learning principles to ensure the code is correct and production-ready.

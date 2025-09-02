@@ -1,11 +1,32 @@
+# Virtual environment
 venv/
+.env
+*.env
+
+# Python cache
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Outputs (large or generated files)
 outputs/models/
 outputs/plots/
 outputs/bi_exports/*.parquet
-.DS_Store
+outputs/bi_exports/churn_scored.csv
+outputs/bi_exports/telco_clean.csv
+
+# IDE/editor-specific
+.vscode/
+.idea/
+
+# AI/test tool artefacts
 .mcp/
 testproject_mcp/
 *.mcp.json
-*.mcp.yam
+*.mcp.yaml
+tests/__snapshots__/
