@@ -143,8 +143,6 @@ This project demonstrates:
 - **Realistic performance**: balanced precision/recall trade-offs  
 - **Communication**: can explain model outputs to non-technical stakeholders  
 
-📌 *This mirrors workflows in telecom, SaaS, and subscription businesses.*  
-
 ---
 
 ## 📄 Licence  
