@@ -132,6 +132,11 @@ Key contributions from TestSprite (validated manually by me):
 - Target distribution: ~26% churn, ~74% non-churn  
 - Scored dataset → includes `pred_proba` (likelihood of churn) & `pred_label` (0/1)
 
+### https://img.shields.io/badge/power_bi-F2C811?style=for-the-badge&logo=powerbi&logoColor=black
+<img width="1294" height="726" alt="image" src="https://github.com/user-attachments/assets/0c7e42b0-2a04-433f-b961-236d785d92e6" />
+
+
+
 ---
 
 ## 🎯 Why This Project Matters
